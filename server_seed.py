@@ -1,7 +1,6 @@
 #ЗАПУСК СЕРВЕРА СИДА ДЛЯ ТЕСТА
 import threading
 import socket
-import sys 
 import json 
 import time
 import udp 
@@ -33,7 +32,7 @@ class Node:
 
             if action['type'] == 'newpeer': #передает список пиров
                 print("A new peer is coming")
-                self.peers[action['data']] = addr  #DATA=myid
+                self.peers[action['data']] = addr
                 # print(addr)
                 udp.sendJS(self.udp_socket, addr, {
                 "type": 'peers',
@@ -50,8 +49,7 @@ class Node:
                 }, self.peers)
 
             if action['type'] == 'introduce':
-                server_name=f'Сервер включен. Имя сервера: {self.myid}'
-                print(server_name)
+                print('Новый пользователь присоединился')
                 self.peers[action['data']]= addr   
 
             if action['type'] == 'input':
@@ -102,13 +100,12 @@ class Node:
 
 
 def main():
-
     #Присвоение порта:  
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_socket.bind((ip_seed, port_seed))
     print(f'Адрес seed: {ip_seed}:{port_seed}')
     peer = Node()
-    peer.myid = input('Назначьте имя seed: ') 
+    peer.myid = input('Назначьте имя seed (сервера): ')
     peer.udp_socket = udp_socket
     peer.startpeer() # Отправляет сообщение о новом подключенном пире
     t1 = threading.Thread(target=peer.rece, args=())
