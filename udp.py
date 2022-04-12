@@ -2,6 +2,20 @@ import socket
 import threading
 import sys
 import json
+import netifaces
+
+#определяем локальный ip адрес:
+interfaces = netifaces.interfaces()
+for i in interfaces:
+    if i == 'lo':
+        continue
+    iface = netifaces.ifaddresses(i).get(netifaces.AF_INET)
+    if iface != None:
+        for j in iface:
+            my_ip=j['addr']
+
+
+
 # send string , to address.  
 def sendmbase(udp_socket, toA, message ):
     udp_socket.sendto(message.encode(),(toA[0],toA[1]))
@@ -43,9 +57,8 @@ def send(udp_socket):
 def main():
     
     port = int(sys.argv[1]) #Получить номер порта из командной строки
-    fromA = ("127.0.0.1",port)
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    udp_socket.bind((fromA[0],fromA[1]))
+    udp_socket.bind((my_ip,port))
     t1 = threading.Thread(target=rece, args=(udp_socket,))
     t2 = threading.Thread(target=send, args=(udp_socket,))
     t1.start()
