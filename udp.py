@@ -2,19 +2,6 @@ import socket
 import threading
 import sys
 import json
-import netifaces
-
-#определяем локальный ip адрес:
-#interfaces = netifaces.interfaces()
-#for i in interfaces:
-#    if i == 'lo':
- #       continue
-  #  iface = netifaces.ifaddresses(i).get(netifaces.AF_INET)
-   # if iface != None:
-    #    for j in iface:
-     #       my_ip=j['addr']
-
-
 
 # send string , to address.  
 def sendmbase(udp_socket, toA, message ):
@@ -63,9 +50,3 @@ def main():
  
 if __name__ == '__main__':
     main()        
-
-# usage:
-# python p2pUdp.py 10001 
-# python p2pUdp.py 10002
-# hello 10001
-# world 10002 

@@ -5,18 +5,19 @@ import json
 import time
 import udp 
 from config import seed, port_seed, ip_seed
-import netifaces
 import random
 
-#определяем локальный ip адрес:
-interfaces = netifaces.interfaces()
-for i in interfaces:
-    if i == 'lo':
-        continue
-    iface = netifaces.ifaddresses(i).get(netifaces.AF_INET)
-    if iface != None:
-        for j in iface:
-            my_ip=j['addr']
+#метод определния ip (локальный/за NAT)
+def extract_ip():
+    st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:       
+        st.connect(('10.255.255.255', 1))
+        IP = st.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        st.close()
+    return IP
 
 class Node:
     seed = seed
@@ -117,10 +118,6 @@ def main():
 if __name__ == '__main__':
     main()           
 
-# usage:
-# python main.py 8891 id1
-# python main.py 8892 id2
-# python main.py 8893 id3
 
 
 

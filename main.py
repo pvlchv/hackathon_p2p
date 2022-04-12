@@ -4,18 +4,20 @@ import json
 import time
 import udp 
 from config import seed
-import netifaces
 import random
 
-#определяем локальный ip адрес:
-interfaces = netifaces.interfaces()
-for i in interfaces:
-    if i == 'lo':
-        continue
-    iface = netifaces.ifaddresses(i).get(netifaces.AF_INET)
-    if iface != None:
-        for j in iface:
-            my_ip=j['addr']
+#метод определния ip (локальный/за NAT)
+def extract_ip():
+    st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:       
+        st.connect(('10.255.255.255', 1))
+        IP = st.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        st.close()
+    return IP
+
 
 class Node:
     seed = seed
@@ -32,7 +34,6 @@ class Node:
             if action['type'] == 'newpeer': #передает список пиров
                 print("A new peer is coming")
                 self.peers[action['data']] = addr  #DATA=myid
-                # print(addr)
                 udp.sendJS(self.udp_socket, addr, {
                 "type": 'peers',
                 "data": self.peers
@@ -41,7 +42,6 @@ class Node:
             if action['type'] == 'peers':
                 print("Received a bunch of peers")
                 self.peers.update(action['data'])
-                # introduce youself. 
                 udp.broadcastJS(self.udp_socket, {
                     "type":"introduce",
                     "data": self.myid
@@ -57,7 +57,6 @@ class Node:
 
             if action['type'] == 'exit':
                 if(self.myid == action['data']):
-                #cannot be closed too fast.  
                     time.sleep(0.5) 
                     break
                 value, key = self.peers.pop(action['data'])
@@ -71,7 +70,7 @@ class Node:
 
     def send(self):
         while True: 
-            msg_input = input("$:")
+            msg_input = input("сообщение:")
             if not msg_input:
                 continue
             if msg_input == "/exit":
@@ -81,7 +80,8 @@ class Node:
                 }, self.peers)
                 break
             if msg_input == "/friends":
-                print(self.peers) 
+                peers_in_chat=f'список участников: {self.peers}'
+                print(peers_in_chat)
                 continue
             l = msg_input.split()
             if l[-1] in self.peers.keys():
@@ -100,8 +100,9 @@ class Node:
 
 
 def main():
-    
-    port =random.randint(10000,60000)    #Присвоение порта
+    #определяем локальный ip адрес:
+    my_ip=extract_ip()
+    port = random.randint(10000,60000)    #Присвоение порта
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_socket.bind((my_ip, port))
     print(f'Адрес вашего сервера: {my_ip}:{port}')
@@ -116,12 +117,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()           
-
-# usage:
-# python main.py 8891 id1
-# python main.py 8892 id2
-# python main.py 8893 id3
-
-
-
+    main()          
