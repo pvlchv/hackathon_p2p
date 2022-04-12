@@ -5,14 +5,14 @@ import json
 import netifaces
 
 #определяем локальный ip адрес:
-interfaces = netifaces.interfaces()
-for i in interfaces:
-    if i == 'lo':
-        continue
-    iface = netifaces.ifaddresses(i).get(netifaces.AF_INET)
-    if iface != None:
-        for j in iface:
-            my_ip=j['addr']
+#interfaces = netifaces.interfaces()
+#for i in interfaces:
+#    if i == 'lo':
+ #       continue
+  #  iface = netifaces.ifaddresses(i).get(netifaces.AF_INET)
+   # if iface != None:
+    #    for j in iface:
+     #       my_ip=j['addr']
 
 
 
@@ -31,10 +31,6 @@ def recembase(udp_socket):
 def sendJS(udp_socket,toA,message):
 #     print(toA)    
     sendmbase(udp_socket,toA,json.dumps(message))
-
-def broadcastms(udp_socket,message, peers):
-    for p in peers.values():
-        sendmbase(udp_socket,p,message)
 
 def broadcastJS(udp_socket,message, peers):
     for p in peers.values():
@@ -58,7 +54,7 @@ def main():
     
     port = int(sys.argv[1]) #Получить номер порта из командной строки
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    udp_socket.bind((my_ip,port))
+    udp_socket.bind(('127.0.0.1',port)) #изменить на my_ip
     t1 = threading.Thread(target=rece, args=(udp_socket,))
     t2 = threading.Thread(target=send, args=(udp_socket,))
     t1.start()

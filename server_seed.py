@@ -1,9 +1,11 @@
+#ЗАПУСК СЕРВЕРА СИДА ДЛЯ ТЕСТА
 import threading
 import socket
+import sys 
 import json 
 import time
 import udp 
-from config import seed
+from config import seed, port_seed, ip_seed
 import netifaces
 import random
 
@@ -48,8 +50,8 @@ class Node:
                 }, self.peers)
 
             if action['type'] == 'introduce':
-                your_name= f'Пользователь {self.myid} присоединился'
-                print(your_name)
+                server_name=f'Сервер включен. Имя сервера: {self.myid}'
+                print(server_name)
                 self.peers[action['data']]= addr   
 
             if action['type'] == 'input':
@@ -100,13 +102,13 @@ class Node:
 
 
 def main():
-    
-    port =random.randint(10000,60000)    #Присвоение порта
+
+    #Присвоение порта:  
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    udp_socket.bind((my_ip, port))
-    print(f'Адрес вашего сервера: {my_ip}:{port}')
-    peer = Node() 
-    peer.myid = input('Введите ваше имя: ') #Имя пользователя
+    udp_socket.bind((ip_seed, port_seed))
+    print(f'Адрес seed: {ip_seed}:{port_seed}')
+    peer = Node()
+    peer.myid = input('Назначьте имя seed: ') 
     peer.udp_socket = udp_socket
     peer.startpeer() # Отправляет сообщение о новом подключенном пире
     t1 = threading.Thread(target=peer.rece, args=())
